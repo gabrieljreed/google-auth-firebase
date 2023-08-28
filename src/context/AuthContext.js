@@ -91,13 +91,17 @@ export const AuthContextProvider = ({ children }) => {
       console.log('User', currentUser)
       console.log('User', currentUser?.uid);
 
-      console.log("user.uid", currentUser.uid);
-
+      // This works great for getting the user's data and creating it if it doesn't yet exist.
+      // I should extend this so that there's a avatar config subcollection thing (look at the test user I created)
+      // There are also ways to do custom types, which could be useful for the avatar config (see docs)
+      // Tomorrow I should start looking at folding this in to the existing app, see how much of this context stuff I 
+      // really need to port over. 
+      // At some point, I should start thinking about the UI as well.
       const userDocRef = doc(db, "users", currentUser.uid);
       const userDocSnap = await getDoc(userDocRef);
 
       if (userDocSnap.exists()) {
-        console.log("Document data:", userDocSnap.data());
+        console.log("User document data:", userDocSnap.data());
       }
       else {
         // doc.data() will be undefined in this case
@@ -112,24 +116,6 @@ export const AuthContextProvider = ({ children }) => {
       }
 
       getUsers();
-
-      // // Query the database to see if the user exists
-      // const userRef = db.collection('users').doc(currentUser.uid);
-      // const doc = await userRef.get();
-      // console.log(doc);
-      // if (!doc.exists) {
-      //   console.log('No such document!');
-      //   // If the user does not exist, create a new user
-      //   await userRef.set({
-      //     uid: user.uid,
-      //     displayName: user.displayName,
-      //     email: user.email,
-      //     photoURL: user.photoURL,
-      //   });
-      // }
-      // else {
-      //   console.log('Document data:', doc.data());
-      // }
 
     });
     return () => {
