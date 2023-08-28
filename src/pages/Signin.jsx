@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { GoogleButton } from 'react-google-button';
 import { UserAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { db } from '../firebase';
 
 const Signin = () => {
   const { googleSignIn, user } = UserAuth();
   const navigate = useNavigate();
 
   const handleGoogleSignIn = async () => {
+    console.log("Sign in button clicked");
     try {
       await googleSignIn();
     } catch (error) {
