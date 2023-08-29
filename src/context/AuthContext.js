@@ -88,15 +88,22 @@ export const AuthContextProvider = ({ children }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-      console.log('User', currentUser)
-      console.log('User', currentUser?.uid);
 
       // This works great for getting the user's data and creating it if it doesn't yet exist.
-      // I should extend this so that there's a avatar config subcollection thing (look at the test user I created)
       // There are also ways to do custom types, which could be useful for the avatar config (see docs)
       // Tomorrow I should start looking at folding this in to the existing app, see how much of this context stuff I 
       // really need to port over. 
       // At some point, I should start thinking about the UI as well.
+
+      if (currentUser === null) {
+        console.log('User logged out, no database action');
+        return;
+      }
+      if (currentUser.uid === undefined) {
+        console.error('User logged in, but no uid');
+        return;
+      }
+
       const userDocRef = doc(db, "users", currentUser.uid);
       const userDocSnap = await getDoc(userDocRef);
 
@@ -110,9 +117,16 @@ export const AuthContextProvider = ({ children }) => {
           uid: currentUser.uid,
           displayName: currentUser.displayName,
           email: currentUser.email,
-          photoURL: currentUser.photoURL,
         });
         console.log('User created');
+
+        // Create a sub collection within the newly created doc
+        const avatarConfigRef = collection(userDocRef, 'avatarConfig');
+        await setDoc(doc(avatarConfigRef, "config_uid"), {
+          name: "testName",
+          avatar: "testAvatar",
+        });
+        console.log('Avatar config created');
       }
 
       getUsers();
